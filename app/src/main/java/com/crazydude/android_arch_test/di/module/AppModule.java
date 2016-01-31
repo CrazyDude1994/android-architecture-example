@@ -1,0 +1,70 @@
+package com.crazydude.android_arch_test.di.module;
+
+import android.util.Log;
+
+import com.crazydude.android_arch_test.MyApplication;
+import com.path.android.jobqueue.JobManager;
+import com.path.android.jobqueue.config.Configuration;
+import com.path.android.jobqueue.log.CustomLogger;
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
+
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
+
+/**
+ * Created by Crazy on 31.01.2016.
+ */
+@Module
+public class AppModule {
+
+    private MyApplication mMyApplication;
+
+    public AppModule(MyApplication myApplication) {
+        mMyApplication = myApplication;
+    }
+
+    @Provides
+    @Singleton
+    public Bus provideBus() {
+        return new Bus(ThreadEnforcer.ANY);
+    }
+
+    @Provides
+    @Singleton
+    public JobManager provideJobManager() {
+        return new JobManager(mMyApplication, new Configuration.Builder(mMyApplication)
+                .customLogger(new CustomLogger() {
+                    private static final String TAG = "JOBS";
+
+                    @Override
+                    public boolean isDebugEnabled() {
+                        return true;
+                    }
+
+                    @Override
+                    public void d(String text, Object... args) {
+                        Log.d(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void e(Throwable t, String text, Object... args) {
+                        Log.e(TAG, String.format(text, args), t);
+                    }
+
+                    @Override
+                    public void e(String text, Object... args) {
+                        Log.e(TAG, String.format(text, args));
+                    }
+                })
+                .build());
+    }
+
+    @Provides
+    @Singleton
+    public MyApplication provideMyApplication() {
+        return mMyApplication;
+    }
+}

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Android-arch-test</string>
+    <string name="login">Login</string>
+    <string name="send_message">Send message</string>
+    <integer name="com_vk_sdk_AppId">5249995</integer>
+</resources>

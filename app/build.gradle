@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+    }
+
+    defaultConfig {
+        applicationId "com.crazydude.android_arch_test"
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //Android support libraries
+    compile 'com.android.support:appcompat-v7:23+'
+    compile 'com.android.support:recyclerview-v7:23+'
+    //Dagger2
+    compile 'com.google.dagger:dagger-compiler:2.0.1'
+    compile 'com.google.dagger:dagger:2.0.1'
+    //Javax
+    compile 'org.glassfish:javax.annotation:10.0-b28'
+    //Lombok
+    compile 'org.projectlombok:lombok:1.16.6'
+    //OttoBus
+    compile 'com.squareup:otto:1.3.8'
+    //Retrofit
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta1'
+    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta1'
+    //GSON
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.wdullaer:materialdatetimepicker:1.5.3'
+    //RxJava
+    compile 'io.reactivex:rxjava:1.0.14'
+    compile 'io.reactivex:rxandroid:1.0.1'
+    compile 'com.trello:rxlifecycle:0.3.0'
+    compile 'com.trello:rxlifecycle-components:0.3.0'
+    compile 'com.github.siyamed:android-shape-imageview:0.9.3@aar'
+    //ButterKnife
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.vk:androidsdk:+'
+    compile 'com.birbit:android-priority-jobqueue:1.3.5'
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+
+    testCompile 'junit:junit:4.12'
+}
