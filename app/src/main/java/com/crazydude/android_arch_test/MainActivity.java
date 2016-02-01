@@ -13,6 +13,7 @@ import com.crazydude.android_arch_test.adapters.MessageAdapter;
 import com.crazydude.android_arch_test.di.components.ApplicationComponent;
 import com.crazydude.android_arch_test.events.AddedNewMessageEvent;
 import com.crazydude.android_arch_test.events.DeliveredMessageEvent;
+import com.crazydude.android_arch_test.events.RemovedMessageEvent;
 import com.crazydude.android_arch_test.jobs.SendMessageJob;
 import com.crazydude.android_arch_test.models.Message;
 import com.path.android.jobqueue.JobManager;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements VKCallback<VKAcce
                 VKSdk.login(this, "messages");
                 break;
             case R.id.activity_main_send_message_button:
-                mJobManager.addJobInBackground(new SendMessageJob("HELLO YOU FUCK XDDD" + new Random().nextInt(), getApplicationComponent()));
+                mJobManager.addJobInBackground(new SendMessageJob("HELLO YOU FUCK XDDD" + new Random().nextInt()));
                 break;
         }
     }
@@ -104,6 +105,11 @@ public class MainActivity extends AppCompatActivity implements VKCallback<VKAcce
 
     @Subscribe
     public void onDeliveredMessage(DeliveredMessageEvent event) {
+        refresh(event.getMessage());
+    }
+
+    @Subscribe
+    public void onRemovedMessage(RemovedMessageEvent event) {
         refresh(event.getMessage());
     }
 
@@ -136,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements VKCallback<VKAcce
     }
 
     private void initRecyclerView() {
-        mMessagesRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
+        mMessagesRecycler.setLayoutManager(new LinearLayoutManager(this));
         mMessageAdapter = new MessageAdapter();
         mMessagesRecycler.setAdapter(mMessageAdapter);
     }

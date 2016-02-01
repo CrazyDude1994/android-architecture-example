@@ -3,8 +3,12 @@ package com.crazydude.android_arch_test.di.module;
 import android.util.Log;
 
 import com.crazydude.android_arch_test.MyApplication;
+import com.crazydude.android_arch_test.di.components.ApplicationComponent;
+import com.crazydude.android_arch_test.jobs.BaseJob;
+import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.config.Configuration;
+import com.path.android.jobqueue.di.DependencyInjector;
 import com.path.android.jobqueue.log.CustomLogger;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
@@ -34,8 +38,16 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public JobManager provideJobManager() {
+    public JobManager provideJobManager(ApplicationComponent component) {
         return new JobManager(mMyApplication, new Configuration.Builder(mMyApplication)
+                .injector(new DependencyInjector() {
+                    @Override
+                    public void inject(Job job) {
+                        if (job instanceof BaseJob) {
+                            ((BaseJob) job).inject(component);
+                        }
+                    }
+                })
                 .customLogger(new CustomLogger() {
                     private static final String TAG = "JOBS";
 

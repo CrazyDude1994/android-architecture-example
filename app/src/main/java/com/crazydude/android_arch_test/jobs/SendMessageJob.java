@@ -1,11 +1,10 @@
 package com.crazydude.android_arch_test.jobs;
 
-import com.crazydude.android_arch_test.MyApplication;
 import com.crazydude.android_arch_test.di.components.ApplicationComponent;
 import com.crazydude.android_arch_test.events.AddedNewMessageEvent;
 import com.crazydude.android_arch_test.events.DeliveredMessageEvent;
+import com.crazydude.android_arch_test.events.RemovedMessageEvent;
 import com.crazydude.android_arch_test.models.Message;
-import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 import com.squareup.otto.Bus;
 import com.vk.sdk.VKSdk;
@@ -15,35 +14,32 @@ import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 
-import org.json.JSONException;
-
 import javax.inject.Inject;
 
 
 /**
  * Created by Crazy on 29.01.2016.
  */
-public class SendMessageJob extends Job {
+public class SendMessageJob extends BaseJob {
 
     @Inject
     transient Bus mBus;
 
     private String mText;
+    private long mLocalId;
 
-    public SendMessageJob(String text, ApplicationComponent component) {
+    public SendMessageJob(String text) {
         super(new Params(1).requireNetwork().persist().groupBy("messages"));
         mText = text;
-        component.inject(this);
+        Message message = new Message(mText, System.currentTimeMillis(), false);
+        message.save();
+        mLocalId = message.getId();
     }
 
     @Override
     public void onAdded() {
-        Message message = new Message(mText, System.currentTimeMillis(), false);
-        message.save();
-
-        mBus.post(new AddedNewMessageEvent(message));
+        mBus.post(new AddedNewMessageEvent(null));
     }
-
 
     @Override
     public void onRun() throws Throwable {
@@ -54,7 +50,7 @@ public class SendMessageJob extends Job {
             vkRequest.executeSyncWithListener(new VKRequest.VKRequestListener() {
                 @Override
                 public void onComplete(VKResponse response) {
-                    Message lastMessage = Message.getFirstNotSentMessage();
+                    Message lastMessage = Message.load(Message.class, mLocalId);
                     lastMessage.setSent(true);
                     lastMessage.save();
                     mBus.post(new DeliveredMessageEvent(lastMessage));
@@ -62,10 +58,8 @@ public class SendMessageJob extends Job {
 
                 @Override
                 public void onError(VKError error) {
-                    Message firstNotSentMessage = Message.getFirstNotSentMessage();
-                    firstNotSentMessage.setSent(false);
-//                lastMessage.setServerId();
-                    firstNotSentMessage.save();
+                    Message.load(Message.class, mLocalId).delete();
+                    mBus.post(new RemovedMessageEvent(null));
                 }
             });
         }
@@ -74,5 +68,10 @@ public class SendMessageJob extends Job {
     @Override
     protected void onCancel() {
 
+    }
+
+    @Override
+    public void inject(ApplicationComponent component) {
+        component.inject(this);
     }
 }
